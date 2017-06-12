@@ -92,8 +92,6 @@ GTAGS
 *.zip
 *.log
 *.dtb
-*.orig
-*.rej
 *~
 \#*#
 
