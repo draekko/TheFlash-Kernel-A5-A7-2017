@@ -1,0 +1,9 @@
+#<Storage Type> <Start Page Index> <Vault Version> <Client Name> <Usage(Vault Name)> <Default State> <Flags>
+
+HYBRID 500 1 system_server RemoteLockControl Initial usekey,data_no_hmac
+
+# For Test
+HYBRID 600 1 com.samsung.security RemoteLockControlTest Initial usekey,data_no_hmac
+HYBRID 610 1 com.samsung.security UseKeyTest None usekey
+HYBRID 620 1 com.samsung.security NoKeyTest None nokey
+
