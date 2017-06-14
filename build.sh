@@ -8,7 +8,7 @@
 BUILD_SCRIPT=1.0
 VERSION_NUMBER=$(<build/version)
 ARCH=arm64
-BUILD_CROSS_COMPILE=~/toolchain/aarch64-linux-android-4.9-kernel/bin/aarch64-linux-android-
+BUILD_CROSS_COMPILE=/usr/local/share/aarch64-linux-android-4.9/bin/aarch64-linux-android-
 BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 RDIR=$(pwd)
 OUTDIR=$RDIR/arch/$ARCH/boot
