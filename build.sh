@@ -5,7 +5,7 @@
 # ---------
 # VARIABLES
 # ---------
-BUILD_SCRIPT=1.0
+BUILD_SCRIPT=2.0
 VERSION_NUMBER=$(<build/version)
 ARCH=arm64
 BUILD_CROSS_COMPILE=/usr/local/share/aarch64-linux-android-4.9/bin/aarch64-linux-android-
@@ -40,20 +40,20 @@ make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
 make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
 	CROSS_COMPILE=$BUILD_CROSS_COMPILE mrproper
 rm -f $RDIR/build/build.log
-rm -f $RDIR/build/build-A520x.log
+rm -f $RDIR/build/build-*.log
 rm -rf $RDIR/arch/arm64/boot/dtb
 rm -f $RDIR/arch/$ARCH/boot/dts/*.dtb
 rm -f $RDIR/arch/$ARCH/boot/boot.img-dtb
 rm -f $RDIR/arch/$ARCH/boot/boot.img-zImage
 rm -f $RDIR/build/boot.img
 rm -f $RDIR/build/*.zip
-rm -f $RDIR/build/$RAMDISKLOC/A520x/image-new.img
-rm -f $RDIR/build/$RAMDISKLOC/A520x/ramdisk-new.cpio.gz
-rm -f $RDIR/build/$RAMDISKLOC/A520x/split_img/boot.img-dtb
-rm -f $RDIR/build/$RAMDISKLOC/A520x/split_img/boot.img-zImage
-rm -f $RDIR/build/$RAMDISKLOC/A520x/image-new.img
-rm -f $RDIR/build/$ZIPLOC/A520x/*.zip
-rm -f $RDIR/build/$ZIPLOC/A520x/*.img
+rm -f $RDIR/build/$RAMDISKLOC/A*20x/image-new.img
+rm -f $RDIR/build/$RAMDISKLOC/A*20x/ramdisk-new.cpio.gz
+rm -f $RDIR/build/$RAMDISKLOC/A*20x/split_img/boot.img-dtb
+rm -f $RDIR/build/$RAMDISKLOC/A*20x/split_img/boot.img-zImage
+rm -f $RDIR/build/$RAMDISKLOC/A*20x/image-new.img
+rm -f $RDIR/build/$ZIPLOC/A*20x/*.zip
+rm -f $RDIR/build/$ZIPLOC/A*20x/*.img
 }
 
 FUNC_BUILD_DTB()
@@ -68,6 +68,11 @@ a5y17lte)
 		exynos7880-a5y17lte_eur_open_02 exynos7880-a5y17lte_eur_open_03
 		exynos7880-a5y17lte_eur_open_05 exynos7880-a5y17lte_eur_open_07
 		exynos7880-a5y17lte_eur_open_08"
+	;;
+a7y17lte)
+	DTSFILES="exynos7880-a7y17lte_eur_open_00 exynos7880-a7y17lte_eur_open_01
+		exynos7880-a7y17lte_eur_open_02 exynos7880-a7y17lte_eur_open_03
+		exynos7880-a7y17lte_eur_open_04 exynos7880-a7y17lte_eur_open_06"
 	;;
 *)
 	echo "Unknown device: $MODEL"
@@ -113,17 +118,19 @@ if [ ! -e $RDIR/arch/$ARCH/boot/Image ]; then
 	grep -B 3 -C 6 -r error: $RDIR/build/build.log
 	grep -B 3 -C 6 -r warn $RDIR/build/build.log
 	read -n 1 -s -p "Press any key to continue"
+	exit
 else if [ ! -e $RDIR/arch/$ARCH/boot/dtb.img ]; then
 	echo -e "\n${bldred}DTB Not Built! Check Build.log${txtrst}\n"
-	grep -B 3 -C 6 -r error:$RDIR/build/build.loguild/build.log
+	grep -B 3 -C 6 -r error:$RDIR/build/build.log
 	grep -B 3 -C 6 -r warn $RDIR/build/build.log
 	read -n 1 -s -p "Press any key to continue"
+	exit
 fi
 fi
 
-if [ ! -f "$RDIR/build/ramdisk/A520x/ramdisk/config" ]; then
-	mkdir $RDIR/build/ramdisk/A520x/ramdisk/config
-	chmod 500 $RDIR/build/ramdisk/A520x/ramdisk/config
+if [ ! -f "$RDIR/build/ramdisk/A*20x/ramdisk/config" ]; then
+	mkdir $RDIR/build/ramdisk/A*20x/ramdisk/config
+	chmod 500 $RDIR/build/ramdisk/A*20x/ramdisk/config
 fi
 
 mv $RDIR/arch/$ARCH/boot/Image $RDIR/arch/$ARCH/boot/boot.img-zImage
@@ -135,6 +142,15 @@ a5y17lte)
 	mv -f $RDIR/arch/$ARCH/boot/boot.img-zImage $RDIR/build/ramdisk/A520x/split_img/boot.img-zImage
 	mv -f $RDIR/arch/$ARCH/boot/boot.img-dtb $RDIR/build/ramdisk/A520x/split_img/boot.img-dtb
 	cd $RDIR/build/ramdisk/A520x
+	./repackimg.sh
+	echo SEANDROIDENFORCE >> image-new.img
+	;;
+a7y17lte)
+	rm -f $RDIR/build/ramdisk/A720x/split_img/boot.img-zImage
+	rm -f $RDIR/build/ramdisk/A720x/split_img/boot.img-dtb
+	mv -f $RDIR/arch/$ARCH/boot/boot.img-zImage $RDIR/build/ramdisk/A720x/split_img/boot.img-zImage
+	mv -f $RDIR/arch/$ARCH/boot/boot.img-dtb $RDIR/build/ramdisk/A720x/split_img/boot.img-dtb
+	cd $RDIR/build/ramdisk/A720x
 	./repackimg.sh
 	echo SEANDROIDENFORCE >> image-new.img
 	;;
@@ -162,6 +178,7 @@ cd $ZIP_FILE_DIR
 zip -gq $ZIP_NAME -r META-INF/ -x "*~"
 zip -gq $ZIP_NAME -r system/ -x "*~" 
 [ -f "$RDIR/build/$ZIPLOC/A520x/boot.img" ] && zip -gq $ZIP_NAME boot.img -x "*~"
+[ -f "$RDIR/build/$ZIPLOC/A720x/boot.img" ] && zip -gq $ZIP_NAME boot.img -x "*~"
 chmod a+r $ZIP_NAME
 mv -f $ZIP_FILE_TARGET $RDIR/build/$ZIP_NAME
 cd $RDIR
@@ -192,6 +209,31 @@ echo "Compiled in $ELAPSED_TIME seconds"
 echo ""
 }
 
+OPTION_2()
+{
+rm -f $RDIR/build/build.log
+MODEL=a7y17lte
+KERNEL_DEFCONFIG=Flash_Kernel_a7y17lte_defconfig
+START_TIME=`date +%s`
+	(
+	FUNC_BUILD_BOOTIMG
+	) 2>&1	 | tee -a $RDIR/build/build.log
+mv -f $RDIR/build/ramdisk/A720x/image-new.img $RDIR/build/$ZIPLOC/A720x/boot.img
+mv -f $RDIR/build/build.log $RDIR/build/build-A720x.log
+ZIP_DATE=`date +%Y%m%d`
+ZIP_FILE_DIR=$RDIR/build/$ZIPLOC/A720x
+ZIP_NAME=$KERNELNAME.A720x.v$VERSION_NUMBER.$ZIP_DATE.zip
+ZIP_FILE_TARGET=$ZIP_FILE_DIR/$ZIP_NAME
+FUNC_BUILD_ZIP
+END_TIME=`date +%s`
+let "ELAPSED_TIME=$END_TIME-$START_TIME"
+echo ""
+echo "Build Successful"
+echo ""
+echo "Compiled in $ELAPSED_TIME seconds"
+echo ""
+}
+
 OPTION_0()
 {
 echo "${bldred} Cleaning Workspace ${txtrst}"
@@ -203,6 +245,9 @@ if [ $1 == 0 ]; then
 fi
 if [ $1 == 1 ]; then
 	OPTION_1
+fi
+if [ $1 == 2 ]; then
+	OPTION_2
 fi
 
 # Program Start
@@ -224,6 +269,8 @@ echo " ${bldblu} 0) Clean Workspace ${txtrst}"
 echo ""
 echo " ${bldblu} 1) Build Flash_Kernel boot.img for A5 2017 ${txtrst}"
 echo ""
+echo " ${bldblu} 2) Build Flash_Kernel boot.img for A7 2017 ${txtrst}"
+echo ""
 read -p " ${bldcya}Please select an option: ${txtrst}" prompt
 echo ""
 if [ $prompt == "0" ]; then
@@ -235,6 +282,13 @@ if [ $prompt == "0" ]; then
 	. build.sh
 elif [ $prompt == "1" ]; then
 	OPTION_1
+	echo ""
+	echo ""
+	echo ""
+	echo ""
+	read -n 1 -s -p "Press any key to continue"
+elif [ $prompt == "2" ]; then
+	OPTION_2
 	echo ""
 	echo ""
 	echo ""
