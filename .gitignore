@@ -39,9 +39,6 @@ Module.symvers
 #
 # Top-level generic files
 #
-/NOTO/G930XX/split_img/
-/NOTO/G935XX/split_img/
-/NOTO_BUILD/
 /tags
 /TAGS
 /linux
@@ -93,6 +90,12 @@ GTAGS
 *.log
 *.dtb
 *~
+scripts/genksyms/genksyms
+scripts/genksyms/keywords.hash.c
+scripts/genksyms/lex.lex.c
+scripts/genksyms/parse.tab.c
+scripts/genksyms/parse.tab.h
+net/wireless/regdb.c
 \#*#
 
 #
