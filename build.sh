@@ -5,7 +5,7 @@
 # ---------
 # VARIABLES
 # ---------
-BUILD_SCRIPT=2.0
+BUILD_SCRIPT=2.5
 VERSION_NUMBER=$(<build/version)
 ARCH=arm64
 BUILD_CROSS_COMPILE=/usr/local/share/aarch64-linux-android-4.9/bin/aarch64-linux-android-
@@ -234,6 +234,45 @@ echo "Compiled in $ELAPSED_TIME seconds"
 echo ""
 }
 
+OPTION_6()
+{
+rm -f $RDIR/build/build.log
+MODEL=a5y17lte
+KERNEL_DEFCONFIG=Flash_Kernel_a5y17lte_defconfig
+START_TIME=`date +%s`
+	(
+	FUNC_BUILD_BOOTIMG
+	) 2>&1	 | tee -a $RDIR/build/build.log
+mv -f $RDIR/build/ramdisk/A520x/image-new.img $RDIR/build/$ZIPLOC/A520x/boot.img-save
+mv -f $RDIR/build/build.log $RDIR/build/build-A520x.log-save
+MODEL=a7y17lte
+KERNEL_DEFCONFIG=Flash_Kernel_a7y17lte_defconfig
+	(
+	FUNC_BUILD_BOOTIMG
+	) 2>&1	 | tee -a $RDIR/build/build.log
+mv -f $RDIR/build/$ZIPLOC/A520x/boot.img-save $RDIR/build/$ZIPLOC/A520x/boot.img
+mv -f $RDIR/build/ramdisk/A720x/image-new.img $RDIR/build/$ZIPLOC/A720x/boot.img
+mv -f $RDIR/build/build-A520x.log-save $RDIR/build/build-A520x.log
+mv -f $RDIR/build/build.log $RDIR/build/build-A720x.log
+ZIP_DATE=`date +%Y%m%d`
+ZIP_FILE_DIR=$RDIR/build/$ZIPLOC/A520x
+ZIP_NAME=$KERNELNAME.A520x.v$VERSION_NUMBER.$ZIP_DATE.zip
+ZIP_FILE_TARGET=$ZIP_FILE_DIR/$ZIP_NAME
+FUNC_BUILD_ZIP
+ZIP_FILE_DIR=$RDIR/build/$ZIPLOC/A720x
+ZIP_NAME=$KERNELNAME.A720x.v$VERSION_NUMBER.$ZIP_DATE.zip
+ZIP_FILE_TARGET=$ZIP_FILE_DIR/$ZIP_NAME
+FUNC_BUILD_ZIP
+END_TIME=`date +%s`
+let "ELAPSED_TIME=$END_TIME-$START_TIME"
+echo ""
+echo "Total compiling time is $ELAPSED_TIME seconds"
+echo ""
+echo "You can now find your .zip files in the build folder"
+echo ""
+exit
+}
+
 OPTION_0()
 {
 echo "${bldred} Cleaning Workspace ${txtrst}"
@@ -248,6 +287,9 @@ if [ $1 == 1 ]; then
 fi
 if [ $1 == 2 ]; then
 	OPTION_2
+fi
+if [ $1 == 3 ]; then
+	OPTION_3
 fi
 
 # Program Start
@@ -271,6 +313,8 @@ echo " ${bldblu} 1) Build Flash_Kernel boot.img for A5 2017 ${txtrst}"
 echo ""
 echo " ${bldblu} 2) Build Flash_Kernel boot.img for A7 2017 ${txtrst}"
 echo ""
+echo " ${bldblu} 3) Build Flash_Kernel boot.img for both A5 and A7 2017 ${txtrst}"
+echo ""
 read -p " ${bldcya}Please select an option: ${txtrst}" prompt
 echo ""
 if [ $prompt == "0" ]; then
@@ -289,6 +333,13 @@ elif [ $prompt == "1" ]; then
 	read -n 1 -s -p "Press any key to continue"
 elif [ $prompt == "2" ]; then
 	OPTION_2
+	echo ""
+	echo ""
+	echo ""
+	echo ""
+	read -n 1 -s -p "Press any key to continue"
+elif [ $prompt == "3" ]; then
+	OPTION_3
 	echo ""
 	echo ""
 	echo ""
