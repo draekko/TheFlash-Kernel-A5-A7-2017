@@ -18,6 +18,7 @@ dalvik.vm.dex2oat-Xms=64m
 dalvik.vm.dex2oat-Xmx=512m
 ro.dalvik.vm.native.bridge=0
 debug.atrace.tags.enableflags=0
+wlan.wfd.hdcp = disable
 #
 # BOOTIMAGE_BUILD_PROPERTIES
 #
