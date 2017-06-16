@@ -234,7 +234,7 @@ echo "Compiled in $ELAPSED_TIME seconds"
 echo ""
 }
 
-OPTION_6()
+OPTION_3()
 {
 rm -f $RDIR/build/build.log
 MODEL=a5y17lte
