@@ -839,9 +839,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
 	if (strcmp(sb->s_type->name, "proc") == 0)
 		sbsec->flags |= SE_SBPROC | SE_SBGENFS;
 
-	if (!strcmp(sb->s_type->name, "debugfs") ||
-	    !strcmp(sb->s_type->name, "sysfs") ||
-	    !strcmp(sb->s_type->name, "pstore"))
+	if (strcmp(sb->s_type->name, "debugfs") == 0)
 		sbsec->flags |= SE_SBGENFS;
 
 	if (!sbsec->behavior) {
@@ -3294,8 +3292,7 @@ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
 			ATTR_ATIME_SET | ATTR_MTIME_SET | ATTR_TIMES_SET))
 		return dentry_has_perm(cred, dentry, FILE__SETATTR);
 
-	if (selinux_policycap_openperm && (ia_valid & ATTR_SIZE)
-			&& !(ia_valid & ATTR_FILE))
+	if (selinux_policycap_openperm && (ia_valid & ATTR_SIZE))
 		av |= FILE__OPEN;
 
 	return dentry_has_perm(cred, dentry, av);
@@ -3668,8 +3665,6 @@ int ioctl_has_perm(const struct cred *cred, struct file *file,
 	struct lsm_ioctlop_audit ioctl;
 	u32 ssid = cred_sid(cred);
 	int rc;
-	u8 driver = cmd >> 8;
-	u8 xperm = cmd & 0xff;
 
 	ad.type = LSM_AUDIT_DATA_IOCTL_OP;
 	ad.u.op = &ioctl;
@@ -3688,8 +3683,8 @@ int ioctl_has_perm(const struct cred *cred, struct file *file,
 	if (unlikely(IS_PRIVATE(inode)))
 		return 0;
 
-	rc = avc_has_extended_perms(ssid, isec->sid, isec->sclass,
-			requested, driver, xperm, &ad);
+	rc = avc_has_operation(ssid, isec->sid, isec->sclass,
+			requested, cmd, &ad);
 out:
 	return rc;
 }
